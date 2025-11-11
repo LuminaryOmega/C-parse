@@ -88,6 +88,20 @@ Runs on:
 ✅ Anything with a web browser  
 
 ---
+LICENSE:
 
+## 📄 License
+
+This project is licensed under the **PolyForm Noncommercial License 1.0.0**.  
+This means:
+
+✅ Free for personal and noncommercial use  
+✅ Free for research and educational use  
+❌ Not permitted for commercial use without written permission  
+❌ Not permitted for integration into commercial products  
+❌ Not permitted for corporate/enterprise use  
+
+To inquire about a commercial license, contact:  
+CORE: lixil_ii_lixil@proton.me**
 
 
