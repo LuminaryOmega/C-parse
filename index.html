@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Constellation Parser Suite</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- Navigation -->
+    <nav id="navbar"></nav>
+
+    <!-- Main Layout -->
+    <div id="layout">
+      <aside id="sidebar"></aside>
+      <main id="viewer"></main>
+    </div>
+
+  </div>
+
+  <!-- Application -->
+  <script src="components/navbar.js"></script>
+  <script src="components/fileLoader.js"></script>
+  <script src="components/filterPanel.js"></script>
+  <script src="components/viewer.js"></script>
+  <script src="components/exporter.js"></script>
+  <script src="components/lfslTools.js"></script>
+
+  <script src="utils/parseJSON.js"></script>
+  <script src="utils/parseHTML.js"></script>
+  <script src="utils/parseText.js"></script>
+  <script src="utils/datasetBuilder.js"></script>
+  <script src="utils/fileHelpers.js"></script>
+
+  <script src="app.js"></script>
+</body>
+</html>
