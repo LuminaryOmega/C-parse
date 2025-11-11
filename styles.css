@@ -1,76 +1,16 @@
 :root {
-  --bg: #0a0a0f;
-  --panel: #131320;
-  --text: #e4e4ff;
-  --accent-pink: #ff2fd5;
-  --accent-purple: #7f4cff;
-  --accent-gold: #ffdd66;
-  --border: #272742;
-  --radius: 8px;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  --bg: #0d0d0f;
+  --panel: #111417;
+  --text: #e4e4ea;
+  --accent: #ff2fd5;  /* pink */
+  --accent2: #8c40ff; /* purple */
+  --accent3: #ffd86b; /* gold */
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, sans-serif;
-  height: 100vh;
-  overflow: hidden;
-}
-
-#navbar {
-  background: var(--panel);
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
-  font-size: 20px;
-  color: var(--accent-pink);
-  letter-spacing: 1px;
-}
-
-#layout {
-  display: flex;
-  height: calc(100vh - 50px);
-}
-
-#sidebar {
-  width: 240px;
-  background: var(--panel);
-  border-right: 1px solid var(--border);
-  padding: 20px;
-}
-
-.section-title {
-  font-size: 14px;
-  text-transform: uppercase;
-  color: var(--accent-purple);
-  margin-bottom: 10px;
-}
-
-button {
-  all: unset;
-  padding: 10px 14px;
-  background: var(--accent-purple);
-  border-radius: var(--radius);
-  cursor: pointer;
-  color: black;
-  font-weight: bold;
-  text-align: center;
-  display: block;
-}
-
-button:hover {
-  background: var(--accent-pink);
-}
-
-#viewer {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  font-family: monospace;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui;
 }
