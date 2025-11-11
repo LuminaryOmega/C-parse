@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Constellation Parser Suite</title>
+  <title>JSON Parser & Navigator</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 
@@ -18,7 +18,7 @@
       <aside id="sidebar">
         <div class="section-title">Load File</div>
         <button id="load-btn">Choose File</button>
-        <input type="file" id="file-input" accept=".json,.txt,.html" hidden />
+        <input type="file" id="file-input" accept=".json,.jsonl" hidden />
       </aside>
 
       <main id="viewer"></main>
@@ -26,13 +26,8 @@
 
   </div>
 
-  <!-- COMPONENTS -->
-  <script src="src/components/navbar.js"></script>
-  <script src="src/components/fileLoader.js"></script>
-  <script src="src/components/viewer.js"></script>
-
   <!-- APP -->
-  <script src="src/app.js"></script>
+  <script type="module" src="src/app.js"></script>
 
 </body>
 </html>
