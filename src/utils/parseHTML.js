@@ -1,6 +1,17 @@
-// Extracts readable text from HTML
-export function parseHTML(html) {
-  const div = document.createElement("div");
-  div.innerHTML = html;
-  return div.innerText;
+export function parseHTML(text) {
+    const doc = new DOMParser().parseFromString(text, "text/html");
+    const messages = [];
+
+    doc.querySelectorAll("*").forEach(el => {
+        if (el.innerText && el.innerText.trim().length > 0) {
+            messages.push({
+                timestamp: null,
+                role: "html",
+                content: el.innerText.trim(),
+                meta: {}
+            });
+        }
+    });
+
+    return messages;
 }
