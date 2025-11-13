@@ -1,15 +1,15 @@
 // src/app.js
-// Central controller for Constellation Parser Suite
+// JSON Parser & Navigator - Main Application Controller
 
 import Navbar from "./components/navbar.js";
 import FileLoader from "./components/fileLoader.js";
-import Viewer from "./components/viewer.js";
-import FilterPanel from "./components/filterPanel.js";
+import JSONTreeViewer from "./components/jsonTreeViewer.js";
 import Exporter from "./components/exporter.js";
 
 class App {
     constructor() {
-        this.data = [];
+        this.data = null;
+        this.fileName = "";
         this.listeners = {}; // event bus
     }
 
@@ -33,22 +33,40 @@ class App {
         this.data = newData;
     }
 
+    setFileName(name) {
+        this.fileName = name;
+    }
+
+    // --------------------------
+    // ERROR HANDLING
+    // --------------------------
+    handleError(message) {
+        console.error("[App Error]", message);
+        alert(message);
+    }
+
     // --------------------------
     // INITIALIZATION
     // --------------------------
     init() {
+        console.log("🚀 JSON Parser & Navigator - Initializing...");
+
+        // Initialize components
         this.navbar = new Navbar(this);
         this.fileLoader = new FileLoader(this);
-        this.viewer = new Viewer(this);
-        this.filterPanel = new FilterPanel(this);
+        this.viewer = new JSONTreeViewer(this);
         this.exporter = new Exporter(this);
 
         // Mount UI components
         this.navbar.mount();
         this.fileLoader.mount();
         this.viewer.mount();
-        this.filterPanel.mount();
         this.exporter.mount();
+
+        // Error handler
+        this.on("error", (msg) => this.handleError(msg));
+
+        console.log("✅ Application ready!");
     }
 }
 
@@ -57,6 +75,6 @@ class App {
 // --------------------------
 document.addEventListener("DOMContentLoaded", () => {
     const app = new App();
-    window.ConstellationApp = app; // for debugging in browser
+    window.JSONParserApp = app; // for debugging in browser console
     app.init();
-})
+});

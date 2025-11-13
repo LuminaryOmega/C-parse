@@ -3,6 +3,7 @@ export default class Navbar {
     constructor(app) {
         this.app = app;
         this.element = null;
+        this.fileName = "";
     }
 
     mount() {
@@ -13,19 +14,26 @@ export default class Navbar {
         }
         this.element.innerHTML = this.render();
         this.attachEvents();
+
+        // Listen for file name updates
+        this.app.on("data-loaded", () => {
+            this.fileName = this.app.fileName || "";
+            this.updateTitle();
+        });
     }
 
     render() {
         return `
             <div class="nav-left">
-                <span class="nav-title">Constellation Parser Suite</span>
+                <span class="nav-title">JSON Parser & Navigator</span>
+                <span id="file-name" style="color: #888; font-size: 0.9rem; margin-left: 1rem;"></span>
             </div>
 
             <div class="nav-right">
-                <button id="nav-load" class="nav-btn">Load File</button>
-                <button id="nav-filters" class="nav-btn">Filters</button>
-                <button id="nav-export" class="nav-btn">Export</button>
-                <button id="nav-clear" class="nav-btn danger">Clear</button>
+                <button id="nav-load" class="nav-btn">📁 Load File</button>
+                <button id="nav-export-json" class="nav-btn">💾 Export JSON</button>
+                <button id="nav-export-jsonl" class="nav-btn">💾 Export JSONL</button>
+                <button id="nav-clear" class="nav-btn danger">🗑️ Clear</button>
             </div>
         `;
     }
@@ -34,13 +42,26 @@ export default class Navbar {
         document.getElementById("nav-load")
             ?.addEventListener("click", () => this.app.emit("open-file-dialog"));
 
-        document.getElementById("nav-filters")
-            ?.addEventListener("click", () => this.app.emit("open-filter-panel"));
+        document.getElementById("nav-export-json")
+            ?.addEventListener("click", () => this.app.emit("export-json"));
 
-        document.getElementById("nav-export")
-            ?.addEventListener("click", () => this.app.emit("export-dataset"));
+        document.getElementById("nav-export-jsonl")
+            ?.addEventListener("click", () => this.app.emit("export-jsonl"));
 
         document.getElementById("nav-clear")
-            ?.addEventListener("click", () => this.app.emit("clear-all"));
+            ?.addEventListener("click", () => {
+                if (confirm("Clear all data?")) {
+                    this.app.emit("clear-all");
+                    this.fileName = "";
+                    this.updateTitle();
+                }
+            });
+    }
+
+    updateTitle() {
+        const fileNameElement = document.getElementById("file-name");
+        if (fileNameElement) {
+            fileNameElement.textContent = this.fileName ? `(${this.fileName})` : "";
+        }
     }
 }
