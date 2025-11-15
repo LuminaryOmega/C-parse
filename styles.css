@@ -1,16 +1,220 @@
+/* ------------------------------------------------------
+   GLOBAL THEME — LFSL Neon + Cosmic Glass
+------------------------------------------------------ */
+
 :root {
-  --bg: #0d0d0f;
-  --panel: #111417;
-  --text: #e4e4ea;
-  --accent: #ff2fd5;  /* pink */
-  --accent2: #8c40ff; /* purple */
-  --accent3: #ffd86b; /* gold */
+    --pink: #ff1fcf;
+    --violet: #b14bff;
+    --bg-dark: #08070a;
+    --bg-panel: rgba(18, 18, 26, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.12);
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  margin: 0;
-  padding: 0;
-  font-family: system-ui;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-dark) url("data:image/svg+xml,\
+        <svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%'>\
+            <defs>\
+                <pattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'>\
+                    <path d='M40 0H0V40' fill='none' stroke='rgba(255,255,255,0.03)' stroke-width='1' />\
+                </pattern>\
+            </defs>\
+            <rect width='100%' height='100%' fill='url(%23grid)' />\
+        </svg>") repeat;
+    font-family: 'Inter', sans-serif;
+    color: #eaeaea;
+    overflow: hidden;
+}
+
+/* ------------------------------------------------------
+   LAYOUT
+------------------------------------------------------ */
+
+#layout {
+    display: flex;
+    height: calc(100vh - 70px);
+    overflow: hidden;
+}
+
+/* ------------------------------------------------------
+   GLASS PANEL
+------------------------------------------------------ */
+
+.glass {
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    background: var(--bg-panel);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 0 20px rgba(255, 0, 140, 0.12);
+    border-radius: 12px;
+}
+
+/* ------------------------------------------------------
+   NAVBAR
+------------------------------------------------------ */
+
+#navbar {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    border-bottom: 2px solid rgba(255, 0, 140, 0.25);
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(14px);
+    position: relative;
+}
+
+#navbar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-bottom: 2px solid rgba(255, 0, 240, 0.25);
+    filter: blur(6px);
+    opacity: 0.7;
+}
+
+.nav-title {
+    background: linear-gradient(90deg, var(--pink), var(--violet));
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: 600;
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+}
+
+/* ------------------------------------------------------
+   NAV BUTTONS (Neon Pulse)
+------------------------------------------------------ */
+
+.nav-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--pink);
+    background: rgba(0, 0, 0, 0.45);
+    color: var(--pink);
+    cursor: pointer;
+    transition: 0.25s ease;
+    font-size: 0.85rem;
+}
+
+.nav-btn:hover {
+    box-shadow: 0 0 8px var(--pink), 0 0 14px var(--violet);
+    background: var(--pink);
+    color: #08070a;
+    transform: translateY(-2px);
+}
+
+.nav-btn.danger {
+    border-color: #ff4b4b;
+    color: #ff4b4b;
+}
+.nav-btn.danger:hover {
+    background: #ff4b4b;
+    color: #08070a;
+    box-shadow: 0 0 12px #ff4b4b;
+}
+
+/* ------------------------------------------------------
+   SIDEBAR — Glass Box
+------------------------------------------------------ */
+
+#sidebar {
+    width: 260px;
+    padding: 16px;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    background: rgba(10,10,14,0.55);
+    backdrop-filter: blur(20px);
+}
+
+/* Filter UI */
+.filter-box h3 {
+    color: var(--pink);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.filter-box label {
+    display: block;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.filter-box input,
+.filter-box select {
+    width: 100%;
+    background: rgba(20,20,30,0.6);
+    color: #fff;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.18);
+}
+
+.apply-btn {
+    width: 100%;
+    background: var(--pink);
+    border: none;
+    color: #080808;
+    padding: 10px;
+    margin-top: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+.apply-btn:hover {
+    background: var(--violet);
+    color: #fff;
+}
+
+/* ------------------------------------------------------
+   VIEWER — Glass Message Cards
+------------------------------------------------------ */
+
+#viewer {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.msg {
+    padding: 16px;
+    margin-bottom: 18px;
+    border-radius: 14px;
+    border-left: 4px solid var(--pink);
+    backdrop-filter: blur(18px);
+    background: rgba(15, 15, 20, 0.55);
+    border: 1px solid rgba(255,255,255,0.11);
+    box-shadow: 0 0 20px rgba(255,0,150,0.12);
+    transition: 0.25s ease;
+}
+
+.msg:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 30px rgba(255,0,150,0.25);
+}
+
+.meta {
+    font-size: 0.75rem;
+    opacity: 0.75;
+    display: flex;
+    justify-content: space-between;
+}
+
+.content {
+    margin-top: 8px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+/* Empty State */
+.empty {
+    color: rgba(255,255,255,0.4);
+    font-style: italic;
+    text-align: center;
+    margin-top: 20px;
 }

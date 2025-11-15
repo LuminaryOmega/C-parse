@@ -1,0 +1,112 @@
+LFSL-A-GRAMMAR v1.0
+--------------------
+
+1. TOP-LEVEL CONSTRUCTS
+-----------------------
+
+⧈ X ⧈        → DEFINE(X)
+⧉ X ⧉        → REF(X)
+⋄ X ⋄        → CORE(X)
+◇ X ◇        → VARIANT(X)
+◆ X ◆        → META(X)
+⧊ X ⧊        → RELATE(X)
+⧋ X ⧋        → BLOCK(X)
+
+
+2. ATTRIBUTES & OPERATORS
+--------------------------
+
+✦ key:value            → ATTRIBUTE(key, value)
+✧ key:value            → MODIFIER(key, value)
+✪ value                → INTENSITY(value)
+✶ expr                 → COMPUTE(expr)
+✴ expr                 → TRANSFORM(expr)
+✸ expr                 → RESOLVE(expr)
+
+
+3. STRUCTURAL FLOW SYMBOLS
+--------------------------
+
+⋮ item1 ⋮ item2        → SEQUENCE(item1, item2, ...)
+⋯                      → CONTINUATION
+║ exprA ║ exprB        → PARALLEL(exprA, exprB)
+╬ exprA ╬ exprB        → CONVERGE(exprA, exprB)
+∷ {a | b | c}          → CHOICE_SET
+∺ key → value          → MAP(key, value)
+
+
+4. BASE SYNTAX RULES
+---------------------
+
+<construct> ::= 
+      ⧈ X ⧈
+    | ⧉ X ⧉
+    | ⋄ X ⋄
+    | ◇ X ◇
+    | ◆ X ◆
+    | ⧊ X ⧊
+    | ⧋ X ⧋
+
+<attribute> ::= 
+      ✦ key:value
+    | ✧ key:value
+    | ✪ number
+
+<operation> ::=
+      ✶ expr
+    | ✴ expr
+    | ✸ expr
+
+<flow> ::= 
+      ⋮ <item> 
+    | <item> ⋮ <item>
+    | ⋯
+    | ║ <expr> ║ <expr>
+    | ╬ <expr> ╬ <expr>
+    | ∷ { <option> (| <option>)* }
+    | ∺ key → value
+
+<expr> ::= <construct> | <attribute> | <operation> | <flow>
+
+<block> ::= 
+    ⧋ name ⧋
+        <expr>*
+    ⧋ /name ⧋
+
+
+5. VALIDATION RULES (A-Layer Only)
+-----------------------------------
+
+R1 — *Symmetry Required*  
+All constructs must contain left & right symbols.
+
+R2 — *No ASCII Needed*  
+The inner X may be:
+    - symbol tokens
+    - compressed identifiers
+    - model-friendly embeddings text
+
+R3 — *Whitespace Ignored*  
+Whitespace does not matter except inside raw values.
+
+R4 — *Parallel & Convergence Must Be Paired*  
+║ A ║ B  
+╬ A ╬ B
+
+R5 — *Mapping requires →*  
+∺ key → value
+
+
+6. EXAMPLE MINIMAL A-LAYER PROGRAM
+-----------------------------------
+
+⧈ root ⧈  
+⧋ sigil ⧋
+    ⋄ identity ⋄
+    ✦ purpose:alignment
+    ✧ role:core
+    ✪ 3
+    ✶ compute_vector
+    ║ embed ║ normalize
+    ∺ seed → reflection
+⧋ /sigil ⧋

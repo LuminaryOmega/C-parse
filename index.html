@@ -1,38 +1,549 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Constellation Parser Suite</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Constellation Parser — Unified</title>
+<style>
+  :root{
+    --bg:#0a0a0f; --panel:#10111a; --glass:rgba(255,255,255,.06);
+    --ink:#e9e9f1; --muted:#a7acc4; --accent:#ff4bd1; --accent2:#9a7cff; --ok:#31d0a0; --warn:#ffb84d;
+    --chip:#1a1b25; --border:rgba(255,255,255,.1); --hover:rgba(255,255,255,.08)
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:radial-gradient(1200px 900px at 80% -10%,rgba(154,124,255,.15),transparent 60%),
+             radial-gradient(900px 700px at -10% 100%,rgba(255,75,209,.12),transparent 60%), var(--bg);
+    color:var(--ink); font:14px/1.45 system-ui, Segoe UI, Roboto, Inter, sans-serif;
+  }
+  .app{display:grid; grid-template-rows:auto 1fr; height:100%}
+
+  /* Navbar (glass) */
+  .nav{
+    position:sticky; top:0; display:flex; gap:.75rem; align-items:center; padding:.6rem .9rem;
+    backdrop-filter: blur(12px) saturate(1.2);
+    background:linear-gradient(180deg, rgba(15,15,24,.65), rgba(15,15,24,.35));
+    border-bottom:1px solid var(--border);
+  }
+  .brand{display:flex; align-items:center; gap:.6rem; font-weight:600; letter-spacing:.2px}
+  .sigil{width:24px; height:24px; border-radius:8px; background:
+      radial-gradient(35% 35% at 30% 30%, var(--accent), transparent 70%),
+      radial-gradient(35% 35% at 70% 70%, var(--accent2), transparent 70%), var(--panel);
+      box-shadow: 0 0 18px rgba(255,75,209,.35), inset 0 0 12px rgba(154,124,255,.15);
+  }
+  .nav .sp{flex:1}
+  .btn{
+    appearance:none;border:1px solid var(--border); background:var(--chip); color:var(--ink);
+    padding:.5rem .7rem; border-radius:10px; cursor:pointer; transition:150ms; font-weight:600
+  }
+  .btn:hover{background:var(--hover)}
+  .btn.primary{border-color:transparent; background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#0d0d12}
+  .btn.ghost{background:transparent}
+  .hint{color:var(--muted); font-size:.85em}
+
+  /* Layout */
+  .main{display:grid; grid-template-columns: 300px 1fr 340px; gap:12px; padding:12px; height:calc(100vh - 58px)}
+  .col{
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border:1px solid var(--border); border-radius:16px; overflow:hidden; min-height:0;
+    box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.02)
+  }
+  .col .hd{padding:.8rem .9rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.6rem}
+  .col .bd{padding:.8rem; height:100%; overflow:auto}
+
+  /* Conversations list */
+  .list{display:flex; flex-direction:column; gap:.4rem}
+  .item{
+    background:var(--glass); border:1px solid var(--border); border-radius:12px; padding:.6rem .7rem; cursor:pointer;
+  }
+  .item:hover{background:var(--hover)}
+  .item.active{outline:1.5px solid var(--accent2); box-shadow:0 0 0 2px rgba(154,124,255,.35) inset}
+
+  /* Viewer */
+  .msg{padding:.6rem .75rem; border:1px solid var(--border); border-radius:12px; margin:.45rem 0; background:rgba(255,255,255,.04)}
+  .role{font-weight:700; letter-spacing:.2px}
+  .time{color:var(--muted); font-size:.8em}
+  .searchbar{display:flex; gap:.5rem}
+  input[type="text"], input[type="file"], select{
+    width:100%; background:#0f1018; color:var(--ink); border:1px solid var(--border);
+    border-radius:10px; padding:.55rem .6rem
+  }
+
+  /* Chips */
+  .chips{display:flex; gap:.4rem; flex-wrap:wrap}
+  .chip{background:var(--chip); border:1px solid var(--border); padding:.3rem .5rem; border-radius:999px; font-size:.85em}
+
+  /* Modal (role inference confirm) */
+  .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.55)}
+  .modal.on{display:flex}
+  .card{
+    width:min(520px, 92vw);
+    background:linear-gradient(180deg, rgba(18,18,30,.95), rgba(18,18,30,.85));
+    border:1px solid var(--border); border-radius:16px; padding:1rem; box-shadow:0 20px 80px rgba(0,0,0,.6)
+  }
+  .row{display:flex; gap:.6rem; align-items:center}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:.6rem}
+  .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#0e0f16; border:1px solid var(--border); border-radius:8px; padding:.2rem .45rem}
+  .sep{height:1px; background:var(--border); margin:.8rem 0}
+  .muted{color:var(--muted)}
+  /* Small code highlighting for viewer */
+  pre, code{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+  code .s{color:#79d0ff} code .k{color:#ffb84d} code .n{color:#d6d7df} code .p{color:#a7acc4} code .st{color:#77f7c9}
+</style>
 </head>
-
 <body>
-  <div id="app">
-
-    <!-- NAVBAR -->
-    <nav id="navbar"></nav>
-
-    <!-- LAYOUT -->
-    <div id="layout">
-      <aside id="sidebar">
-        <div class="section-title">Load File</div>
-        <button id="load-btn">Choose File</button>
-        <input type="file" id="file-input" accept=".json,.txt,.html" hidden />
-      </aside>
-
-      <main id="viewer"></main>
-    </div>
-
+<div id="app-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:9999;"></div>
+<div class="app">
+  <!-- NAV -->
+  <div class="nav">
+    <div class="brand"><div class="sigil"></div> Constellation Parser <span class="hint">— unified UI</span></div>
+    <div class="sp"></div>
+    <label class="btn">
+      <input id="fileInput" type="file" hidden />
+      Load File
+    </label>
+    <button id="demoBtn" class="btn ghost">Demo data</button>
+    <button id="exportJSONL" class="btn">Export JSONL</button>
+    <button id="exportCSV" class="btn">Export CSV</button>
+    <button id="clearBtn" class="btn ghost">Clear</button>
   </div>
 
-  <!-- COMPONENTS -->
-  <script src="src/components/navbar.js"></script>
-  <script src="src/components/fileLoader.js"></script>
-  <script src="src/components/viewer.js"></script>
+  <!-- MAIN -->
+  <div class="main">
+    <!-- LEFT: Conversations -->
+    <div class="col" id="leftCol">
+      <div class="hd">
+        <strong>Conversations</strong>
+        <span id="convCount" class="hint"></span>
+      </div>
+      <div class="bd">
+        <div class="list" id="convList"></div>
+      </div>
+    </div>
 
-  <!-- APP -->
-  <script src="src/app.js"></script>
+    <!-- CENTER: Viewer -->
+    <div class="col">
+      <div class="hd">
+        <div class="searchbar" style="flex:1">
+          <input id="searchBox" type="text" placeholder="Search messages…" />
+          <select id="roleFilter">
+            <option value="">All roles</option>
+            <option value="User">User</option>
+            <option value="Assistant">Assistant</option>
+          </select>
+        </div>
+      </div>
+      <div class="bd" id="viewer">
+        <div class="muted">Load a file to begin. Supported: <span class="kbd">.jsonl</span>, <span class="kbd">.json</span>, plain text (User:/Assistant: lines).</div>
+      </div>
+    </div>
 
+    <!-- RIGHT: Details / Tools -->
+    <div class="col">
+      <div class="hd"><strong>Tools & Status</strong></div>
+      <div class="bd" id="tools">
+        <div class="chips" style="margin-bottom:.5rem">
+          <span class="chip">Role inference</span>
+          <span class="chip">Name remap</span>
+          <span class="chip">Filters</span>
+          <span class="chip">Exports</span>
+        </div>
+        <div id="status" class="muted">Idle.</div>
+        <div class="sep"></div>
+        <div>
+          <div class="hint">Tips</div>
+          <ul>
+            <li>Click a conversation on the left.</li>
+            <li>Use search & role filter to narrow.</li>
+            <li>Exports respect current conversation.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Role inference modal -->
+<div id="roleModal" class="modal">
+  <div class="card">
+    <div style="font-weight:700; margin-bottom:.4rem">Confirm speaker mapping</div>
+    <div class="muted" style="margin-bottom:.6rem">We detected frequent speakers. Map them to <span class="kbd">User</span> and <span class="kbd">Assistant</span>?</div>
+    <div class="grid2" style="margin-bottom:.6rem">
+      <div>
+        <div class="hint">Detected #1</div>
+        <input id="name1" type="text" />
+        <div class="hint">→ maps to</div>
+        <select id="map1">
+          <option>User</option>
+          <option>Assistant</option>
+        </select>
+      </div>
+      <div>
+        <div class="hint">Detected #2</div>
+        <input id="name2" type="text" />
+        <div class="hint">→ maps to</div>
+        <select id="map2">
+          <option>Assistant</option>
+          <option>User</option>
+        </select>
+      </div>
+    </div>
+    <div class="muted" id="exampleLine"></div>
+    <div class="sep"></div>
+    <div class="row" style="justify-content:flex-end">
+      <button id="cancelMap" class="btn ghost">Skip</button>
+      <button id="applyMap" class="btn primary">Apply mapping</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /*** STATE ***/
+  let conversations = []; // [{id,title,messages:[{role,name,content,timestamp}]}]
+  let activeConvId = null;
+  let detectedNames = []; // top frequent names from raw import
+  let nameMap = {}; // {"Alice":"User","Bob":"Assistant"}
+
+  /*** DOM refs ***/
+  const fileInput = document.getElementById('fileInput');
+  const demoBtn = document.getElementById('demoBtn');
+  const convList = document.getElementById('convList');
+  const convCount = document.getElementById('convCount');
+  const viewer = document.getElementById('viewer');
+  const searchBox = document.getElementById('searchBox');
+  const roleFilter = document.getElementById('roleFilter');
+  const exportJSONL = document.getElementById('exportJSONL');
+  const exportCSV = document.getElementById('exportCSV');
+  const status = document.getElementById('status');
+  const clearBtn = document.getElementById('clearBtn');
+
+  // Modal
+  const roleModal = document.getElementById('roleModal');
+  const name1 = document.getElementById('name1');
+  const name2 = document.getElementById('name2');
+  const map1 = document.getElementById('map1');
+  const map2 = document.getElementById('map2');
+  const exampleLine = document.getElementById('exampleLine');
+  const cancelMap = document.getElementById('cancelMap');
+  const applyMap = document.getElementById('applyMap');
+
+  /*** UTIL ***/
+  const by = sel => document.querySelector(sel);
+  function setStatus(msg){ status.textContent = msg; }
+  function id(){ return Math.random().toString(36).slice(2,10); }
+  function safeStr(x){ return (x??'').toString(); }
+  function download(filename, text){
+    const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename; a.click(); URL.revokeObjectURL(a.href);
+  }
+  function titleFromMessages(msgs){
+    // First non-empty user message snippet
+    const m = msgs.find(m=>m.role==='User' && m.content?.trim()) || msgs[0] || {content:'Untitled'};
+    const t = m.content.replace(/\s+/g,' ').trim().slice(0,64);
+    return t || 'Untitled';
+  }
+
+  /*** ROLE INFERENCE ***/
+  function inferTopNames(rawMsgs){
+    const freq = new Map();
+    for(const m of rawMsgs){
+      const n = (m.name||'').trim();
+      if(!n) continue;
+      freq.set(n, (freq.get(n)||0) + 1);
+    }
+    const top = [...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,2).map(x=>x[0]);
+    return top;
+  }
+  function applyNameMapping(msgs){
+    return msgs.map(m=>{
+      let role = m.role;
+      if(!role){
+        const mapped = nameMap[m.name];
+        if(mapped) role = mapped;
+      }
+      // Default if still missing:
+      if(!role){
+        // Heuristic: if message index even, call User; else Assistant
+        // More robust if original role exists in common schemas
+        role = 'User';
+      }
+      return {...m, role};
+    });
+  }
+
+  /*** PARSERS ***/
+  async function parseFile(file){
+    setStatus(`Reading ${file.name}…`);
+    const text = await file.text();
+    const ext = (file.name.split('.').pop()||'').toLowerCase();
+    if(ext==='jsonl'){
+      return parseJSONL(text);
+    } else if(ext==='json'){
+      return parseJSON(text);
+    } else {
+      return parsePlain(text);
+    }
+  }
+
+  function parseJSONL(raw){
+    const lines = raw.split(/\r?\n/).filter(Boolean);
+    const msgs = [];
+    for(const line of lines){
+      try{
+        const obj = JSON.parse(line);
+        // Normalize common fields
+        let role = obj.role || obj.author || '';
+        if (role && /user/i.test(role)) role = 'User';
+        else if (role && /assistant|system/i.test(role)) role = 'Assistant';
+        const m = {
+          role,
+          name: obj.name || obj.author || '',
+          content: obj.content || obj.text || obj.message || '',
+          timestamp: obj.timestamp || obj.created_at || obj.time || ''
+        };
+        msgs.push(m);
+      }catch(e){/* skip bad line */}
+    }
+    // Single conversation from JSONL
+    return [{
+      id: id(),
+      title: titleFromMessages(msgs),
+      messages: msgs
+    }];
+  }
+
+  function parseJSON(raw){
+    let data; try{ data = JSON.parse(raw); }catch(e){ return parsePlain(raw); }
+    // Many possible shapes:
+    // 1) {messages:[...]}
+    if(data && Array.isArray(data.messages)){
+      return [{
+        id: id(),
+        title: titleFromMessages(normalizeMsgs(data.messages)),
+        messages: normalizeMsgs(data.messages)
+      }];
+    }
+    // 2) [{messages:[...]}, …] or array of msgs
+    if(Array.isArray(data)){
+      if(data.length && data[0] && Array.isArray(data[0].messages)){
+        return data.map(conv=>{
+          const msgs = normalizeMsgs(conv.messages||[]);
+          return { id:id(), title:titleFromMessages(msgs), messages:msgs };
+        });
+      }else{
+        const msgs = normalizeMsgs(data);
+        return [{ id:id(), title:titleFromMessages(msgs), messages:msgs }];
+      }
+    }
+    // 3) unknown object -> flatten key "conversations" maybe
+    if(Array.isArray(data.conversations)){
+      return data.conversations.map(c=>{
+        const msgs = normalizeMsgs(c.messages||[]);
+        return { id:id(), title:titleFromMessages(msgs), messages:msgs };
+      });
+    }
+    // fallback
+    return parsePlain(raw);
+  }
+
+  function normalizeMsgs(arr){
+    return arr.map(x=>{
+      let role = x.role || x.author || '';
+      if (role && /user/i.test(role)) role = 'User';
+      else if (role && /assistant|system/i.test(role)) role = 'Assistant';
+      return {
+        role,
+        name: x.name || x.author || '',
+        content: x.content || x.text || x.message || '',
+        timestamp: x.timestamp || x.created_at || x.time || ''
+      };
+    });
+  }
+
+  function parsePlain(raw){
+    // Very simple plain-text schema:
+    // Lines like "User: hello" / "Assistant: hi"
+    const msgs=[];
+    const lines = raw.split(/\r?\n/);
+    for(const line of lines){
+      const m = line.match(/^\s*(User|Assistant|System|[A-Z][\w\-]+)\s*:\s*(.*)$/i);
+      if(m){
+        let role = m[1];
+        if (/^user$/i.test(role)) role = 'User';
+        else if (/assistant|system/i.test(role)) role = 'Assistant';
+        msgs.push({role, name: (/User|Assistant/i.test(role))?'':role, content:m[2], timestamp:''});
+      }
+    }
+    if(!msgs.length){
+      // Fallback: whole file as a single message
+      msgs.push({role:'User', name:'', content:raw.slice(0, 20000), timestamp:''});
+    }
+    return [{id:id(), title:titleFromMessages(msgs), messages:msgs}];
+  }
+
+  /*** RENDER ***/
+  function renderConversations(){
+    convList.innerHTML = '';
+    convCount.textContent = conversations.length ? `(${conversations.length})` : '';
+    conversations.forEach(c=>{
+      const d = document.createElement('div');
+      d.className = 'item' + (c.id===activeConvId?' active':'');
+      d.innerHTML = `<div style="font-weight:600">${escapeHTML(c.title)}</div>
+                     <div class="hint">${c.messages.length} messages</div>`;
+      d.onclick = ()=>{ activeConvId=c.id; renderConversations(); renderViewer(); };
+      convList.appendChild(d);
+    });
+    if(!activeConvId && conversations[0]){ activeConvId = conversations[0].id; }
+  }
+
+  function escapeHTML(s){ return safeStr(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+
+  function renderViewer(){
+    const conv = conversations.find(x=>x.id===activeConvId);
+    if(!conv){ viewer.innerHTML = `<div class="muted">No conversation selected.</div>`; return; }
+    const q = searchBox.value.trim().toLowerCase();
+    const rf = roleFilter.value;
+    const msgs = conv.messages.filter(m=>{
+      if(rf && m.role!==rf) return false;
+      if(q && !`${m.role} ${m.name} ${m.content}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+    viewer.innerHTML = msgs.map(m=>(
+      `<div class="msg">
+        <div class="row" style="justify-content:space-between">
+          <div class="role">${escapeHTML(m.role)} ${m.name?`<span class="hint">(${escapeHTML(m.name)})</span>`:''}</div>
+          <div class="time">${escapeHTML(m.timestamp||'')}</div>
+        </div>
+        <div style="white-space:pre-wrap">${linkify(escapeHTML(m.content||''))}</div>
+      </div>`
+    )).join('') || `<div class="muted">No messages match.</div>`;
+  }
+
+  function linkify(text){
+    return text.replace(/(https?:\/\/[^\s)]+)|(www\.[^\s)]+)/g, m=>{
+      const url = m.startsWith('http')? m : `https://${m}`;
+      return `<a href="${url}" target="_blank" rel="noopener">${m}</a>`;
+    });
+  }
+
+  /*** EXPORTS ***/
+  function exportCurrentJSONL(){
+    const conv = conversations.find(x=>x.id===activeConvId);
+    if(!conv){ setStatus('Nothing to export.'); return; }
+    const lines = conv.messages.map(m=>JSON.stringify({
+      role:m.role, name:m.name||undefined, content:m.content, timestamp:m.timestamp||undefined
+    })).join('\n');
+    download(`conversation_${conv.id}.jsonl`, lines);
+    setStatus('Exported JSONL.');
+  }
+  function exportCurrentCSV(){
+    const conv = conversations.find(x=>x.id===activeConvId);
+    if(!conv){ setStatus('Nothing to export.'); return; }
+    const esc = v=>`"${(v??'').toString().replace(/"/g,'""')}"`;
+    const rows = [['role','name','timestamp','content']].concat(
+      conv.messages.map(m=>[m.role, m.name||'', m.timestamp||'', m.content||''])
+    );
+    const csv = rows.map(r=>r.map(esc).join(',')).join('\n');
+    download(`conversation_${conv.id}.csv`, csv);
+    setStatus('Exported CSV.');
+  }
+
+  /*** FILE FLOW ***/
+  fileInput.addEventListener('change', async (e)=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    try{
+      const parsed = await parseFile(f);
+      // Gather raw names (pre-map) for inference
+      const rawMsgs = parsed.flatMap(c=>c.messages);
+      detectedNames = inferTopNames(rawMsgs);
+      conversations = parsed;
+      activeConvId = parsed[0]?.id || null;
+      setStatus(`Loaded ${f.name}. Conversations: ${parsed.length}.`);
+      renderConversations();
+      // Prompt for mapping if 1–2 names found
+      if(detectedNames.length){
+        openRoleModal(detectedNames);
+      }else{
+        // Ensure default roles if missing
+        conversations = conversations.map(c=>({...c, messages:applyNameMapping(c.messages)}));
+        renderViewer();
+      }
+    }catch(err){
+      console.error(err);
+      setStatus('Failed to load file.');
+    }
+  });
+
+  // Drag & drop
+  document.addEventListener('dragover', e=>{ e.preventDefault(); });
+  document.addEventListener('drop', async e=>{
+    e.preventDefault();
+    const f = e.dataTransfer.files?.[0]; if(!f) return;
+    fileInput.files = e.dataTransfer.files;
+    const event = new Event('change'); fileInput.dispatchEvent(event);
+  });
+
+  // Demo
+  demoBtn.onclick = ()=>{
+    const demo = [{
+      id:id(),
+      title:'Demo thread',
+      messages:[
+        {role:'User', name:'', content:'How do I enable parser exports?', timestamp:'2025-11-11T06:12:00Z'},
+        {role:'Assistant', name:'', content:'Use the Export JSONL/CSV buttons in the top bar.', timestamp:'2025-11-11T06:12:20Z'},
+        {role:'User', name:'', content:'Great, and filters?', timestamp:'2025-11-11T06:13:00Z'},
+        {role:'Assistant', name:'', content:'Search box and role dropdown above the viewer.', timestamp:'2025-11-11T06:13:18Z'}
+      ]
+    }];
+    conversations = demo; activeConvId = demo[0].id; nameMap={};
+    renderConversations(); renderViewer();
+    setStatus('Demo loaded.');
+  };
+
+  // Exports
+  exportJSONL.onclick = exportCurrentJSONL;
+  exportCSV.onclick = exportCurrentCSV;
+
+  // Filters
+  searchBox.addEventListener('input', renderViewer);
+  roleFilter.addEventListener('change', renderViewer);
+
+  // Clear
+  clearBtn.onclick = ()=>{
+    conversations=[]; activeConvId=null; convList.innerHTML=''; viewer.innerHTML='<div class="muted">Cleared.</div>';
+    nameMap={}; setStatus('Cleared.');
+  };
+
+  /*** ROLE MODAL ***/
+  function openRoleModal(names){
+    roleModal.classList.add('on');
+    name1.value = names[0]||'';
+    name2.value = names[1]||'';
+    // Example line
+    const example = (conversations[0]?.messages?.find(m=>m.content)||{role:'',name:'',content:''});
+    exampleLine.innerHTML = `<span class="hint">Example:</span> <span class="kbd">${escapeHTML(example.name||example.role||'')}</span> → <span class="kbd">User/Assistant</span> · “${escapeHTML((example.content||'').slice(0,80))}…”`;
+  }
+  cancelMap.onclick = ()=>{
+    roleModal.classList.remove('on');
+    // Still apply default roles if missing
+    conversations = conversations.map(c=>({...c, messages:applyNameMapping(c.messages)}));
+    renderViewer(); setStatus('Skipped mapping.');
+  };
+  applyMap.onclick = ()=>{
+    nameMap = {};
+    const n1 = name1.value.trim(); const n2 = name2.value.trim();
+    if(n1) nameMap[n1] = map1.value;
+    if(n2) nameMap[n2] = map2.value;
+    conversations = conversations.map(c=>({...c, messages:applyNameMapping(c.messages)}));
+    roleModal.classList.remove('on');
+    renderViewer();
+    setStatus('Applied mapping.');
+  };
+})();
+</script>
 </body>
 </html>

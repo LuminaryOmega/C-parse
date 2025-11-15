@@ -1,45 +1,32 @@
-export default class Viewer {
-    constructor(app) {
-        this.app = app;
-        this.element = null;
-    }
+let viewer;
 
-    mount() {
-        this.element = document.getElementById("viewer");
-        if (!this.element) {
-            console.error("[Viewer] #viewer not found.");
-            return;
-        }
-        this.app.on("data-updated", (data) => this.render(data));
-        this.app.on("clear-all", () => this.clear());
-    }
+export function viewerInit() {
+  viewer = document.getElementById("viewer");
+  viewer.textContent = "Load a file to begin.";
+}
 
-    render(data) {
-        if (!data || data.length === 0) {
-            this.element.innerHTML = "<div class='empty'>No data loaded.</div>";
-            return;
-        }
+// pretty message blocks
+export function displayParsed(parsed) {
+  viewer.innerHTML = "";
 
-        const html = data.map(msg => `
-            <div class="msg">
-                <div class="meta">
-                    <span class="role">${msg.role || "unknown"}</span>
-                    <span class="time">${msg.timestamp || ""}</span>
-                </div>
-                <div class="content">${this.escape(msg.content)}</div>
-            </div>
-        `).join("");
+  parsed.forEach(block => {
+    const div = document.createElement("div");
+    div.className = "msg-block " + block.role;
 
-        this.element.innerHTML = html;
-    }
+    const role = document.createElement("div");
+    role.className = "msg-role";
+    role.textContent = block.role.toUpperCase();
+    div.appendChild(role);
 
-    clear() {
-        this.element.innerHTML = "<div class='empty'>Cleared.</div>";
-    }
+    const content = document.createElement("div");
+    content.className = "msg-content";
+    content.textContent = block.content;
+    div.appendChild(content);
 
-    escape(str) {
-        return (str || "")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-    }
+    viewer.appendChild(div);
+  });
+}
+
+export function displayRaw(text) {
+  viewer.textContent = text;
 }
